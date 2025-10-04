@@ -876,9 +876,9 @@ export default function Home() {
                             }}
                           />
                           <Tooltip 
-                            formatter={(value: any, name: string, props: any) => {
+                            formatter={(value: number, name: string, props: { payload?: Record<string, number> }) => {
                               // Получаем оригинальное значение из данных
-                              const originalValue = props.payload[`${name}_original`];
+                              const originalValue = props.payload?.[`${name}_original`] || 0;
                               if (name === 'CTR') return [`${originalValue.toFixed(2)}%`, name];
                               if (name === 'Расходы') return [`$${originalValue.toFixed(2)}`, name];
                               if (originalValue >= 1000000) return [`${(originalValue / 1000000).toFixed(1)}M`, name];
@@ -1230,9 +1230,9 @@ export default function Home() {
                             }}
                           />
                           <Tooltip 
-                            formatter={(value: any, name: string, props: any) => {
+                            formatter={(value: number, name: string, props: { payload?: Record<string, number> }) => {
                               // Получаем оригинальное значение из данных
-                              const originalValue = props.payload[`${name}_original`];
+                              const originalValue = props.payload?.[`${name}_original`] || 0;
                               if (name === 'CTR') return [`${originalValue.toFixed(2)}%`, name];
                               if (name === 'Расходы') return [`$${originalValue.toFixed(2)}`, name];
                               if (originalValue >= 1000000) return [`${(originalValue / 1000000).toFixed(1)}M`, name];
