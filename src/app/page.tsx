@@ -100,6 +100,31 @@ export default function Home() {
     return ((value - min) / (max - min)) * 100;
   };
 
+  // Функция для определения, имеют ли выбранные серии одинаковые единицы измерения
+  const hasSameUnits = (selectedSeries: string[]) => {
+    if (selectedSeries.length <= 1) return true;
+    
+    // Группируем серии по единицам измерения
+    const units = {
+      'count': ['Показы', 'Клики', 'Конверсии'], // Количественные показатели
+      'percentage': ['CTR'], // Процентные показатели
+      'currency': ['Расходы'] // Валютные показатели
+    };
+    
+    const selectedUnits = new Set();
+    
+    selectedSeries.forEach(series => {
+      for (const [unit, seriesList] of Object.entries(units)) {
+        if (seriesList.includes(series)) {
+          selectedUnits.add(unit);
+          break;
+        }
+      }
+    });
+    
+    return selectedUnits.size === 1;
+  };
+
   // Функция для конвертации BYN в USD
   const convertBYNtoUSD = (bynValue: string | number): number => {
     if (!bynValue) return 0;
@@ -291,39 +316,64 @@ export default function Home() {
       };
     });
 
-    // Находим минимумы и максимумы для каждой серии
-    const показыValues = rawData.map(d => d.Показы);
-    const кликиValues = rawData.map(d => d.Клики);
-    const ctrValues = rawData.map(d => d.CTR);
-    const расходыValues = rawData.map(d => d.Расходы);
-    const конверсииValues = rawData.map(d => d.Конверсии);
+    // Определяем, какие серии выбраны для отображения
+    const selectedSeries = Object.entries(visibleData)
+      .filter(([_, isVisible]) => isVisible)
+      .map(([series, _]) => series);
 
-    const показыMax = Math.max(...показыValues);
-    const показыMin = Math.min(...показыValues);
-    const кликиMax = Math.max(...кликиValues);
-    const кликиMin = Math.min(...кликиValues);
-    const ctrMax = Math.max(...ctrValues);
-    const ctrMin = Math.min(...ctrValues);
-    const расходыMax = Math.max(...расходыValues);
-    const расходыMin = Math.min(...расходыValues);
-    const конверсииMax = Math.max(...конверсииValues);
-    const конверсииMin = Math.min(...конверсииValues);
+    // Проверяем, имеют ли выбранные серии одинаковые единицы измерения
+    const useAbsoluteValues = hasSameUnits(selectedSeries);
 
-    // Нормализуем данные
-    return rawData.map(item => ({
-      Месяц: item.Месяц,
-      Показы: normalizeData(item.Показы, показыMax, показыMin),
-      Клики: normalizeData(item.Клики, кликиMax, кликиMin),
-      CTR: normalizeData(item.CTR, ctrMax, ctrMin),
-      Расходы: normalizeData(item.Расходы, расходыMax, расходыMin),
-      Конверсии: normalizeData(item.Конверсии, конверсииMax, конверсииMin),
-      // Сохраняем оригинальные значения для тултипа
-      Показы_original: item.Показы,
-      Клики_original: item.Клики,
-      CTR_original: item.CTR,
-      Расходы_original: item.Расходы,
-      Конверсии_original: item.Конверсии
-    }));
+    if (useAbsoluteValues) {
+      // Возвращаем абсолютные значения
+      return rawData.map(item => ({
+        Месяц: item.Месяц,
+        Показы: item.Показы,
+        Клики: item.Клики,
+        CTR: item.CTR,
+        Расходы: item.Расходы,
+        Конверсии: item.Конверсии,
+        // Для абсолютных значений оригинальные значения совпадают с основными
+        Показы_original: item.Показы,
+        Клики_original: item.Клики,
+        CTR_original: item.CTR,
+        Расходы_original: item.Расходы,
+        Конверсии_original: item.Конверсии
+      }));
+    } else {
+      // Нормализуем данные для разных единиц измерения
+      const показыValues = rawData.map(d => d.Показы);
+      const кликиValues = rawData.map(d => d.Клики);
+      const ctrValues = rawData.map(d => d.CTR);
+      const расходыValues = rawData.map(d => d.Расходы);
+      const конверсииValues = rawData.map(d => d.Конверсии);
+
+      const показыMax = Math.max(...показыValues);
+      const показыMin = Math.min(...показыValues);
+      const кликиMax = Math.max(...кликиValues);
+      const кликиMin = Math.min(...кликиValues);
+      const ctrMax = Math.max(...ctrValues);
+      const ctrMin = Math.min(...ctrValues);
+      const расходыMax = Math.max(...расходыValues);
+      const расходыMin = Math.min(...расходыValues);
+      const конверсииMax = Math.max(...конверсииValues);
+      const конверсииMin = Math.min(...конверсииValues);
+
+      return rawData.map(item => ({
+        Месяц: item.Месяц,
+        Показы: normalizeData(item.Показы, показыMax, показыMin),
+        Клики: normalizeData(item.Клики, кликиMax, кликиMin),
+        CTR: normalizeData(item.CTR, ctrMax, ctrMin),
+        Расходы: normalizeData(item.Расходы, расходыMax, расходыMin),
+        Конверсии: normalizeData(item.Конверсии, конверсииMax, конверсииMin),
+        // Сохраняем оригинальные значения для тултипа
+        Показы_original: item.Показы,
+        Клики_original: item.Клики,
+        CTR_original: item.CTR,
+        Расходы_original: item.Расходы,
+        Конверсии_original: item.Конверсии
+      }));
+    }
   };
 
   // Функция для подготовки данных для графика Google
@@ -349,39 +399,64 @@ export default function Home() {
       };
     });
 
-    // Находим минимумы и максимумы для каждой серии
-    const показыValues = rawData.map(d => d.Показы);
-    const кликиValues = rawData.map(d => d.Клики);
-    const ctrValues = rawData.map(d => d.CTR);
-    const расходыValues = rawData.map(d => d.Расходы);
-    const конверсииValues = rawData.map(d => d.Конверсии);
+    // Определяем, какие серии выбраны для отображения
+    const selectedSeries = Object.entries(visibleDataGoogle)
+      .filter(([_, isVisible]) => isVisible)
+      .map(([series, _]) => series);
 
-    const показыMax = Math.max(...показыValues);
-    const показыMin = Math.min(...показыValues);
-    const кликиMax = Math.max(...кликиValues);
-    const кликиMin = Math.min(...кликиValues);
-    const ctrMax = Math.max(...ctrValues);
-    const ctrMin = Math.min(...ctrValues);
-    const расходыMax = Math.max(...расходыValues);
-    const расходыMin = Math.min(...расходыValues);
-    const конверсииMax = Math.max(...конверсииValues);
-    const конверсииMin = Math.min(...конверсииValues);
+    // Проверяем, имеют ли выбранные серии одинаковые единицы измерения
+    const useAbsoluteValues = hasSameUnits(selectedSeries);
 
-    // Нормализуем данные
-    return rawData.map(item => ({
-      Месяц: item.Месяц,
-      Показы: normalizeData(item.Показы, показыMax, показыMin),
-      Клики: normalizeData(item.Клики, кликиMax, кликиMin),
-      CTR: normalizeData(item.CTR, ctrMax, ctrMin),
-      Расходы: normalizeData(item.Расходы, расходыMax, расходыMin),
-      Конверсии: normalizeData(item.Конверсии, конверсииMax, конверсииMin),
-      // Сохраняем оригинальные значения для тултипа
-      Показы_original: item.Показы,
-      Клики_original: item.Клики,
-      CTR_original: item.CTR,
-      Расходы_original: item.Расходы,
-      Конверсии_original: item.Конверсии
-    }));
+    if (useAbsoluteValues) {
+      // Возвращаем абсолютные значения
+      return rawData.map(item => ({
+        Месяц: item.Месяц,
+        Показы: item.Показы,
+        Клики: item.Клики,
+        CTR: item.CTR,
+        Расходы: item.Расходы,
+        Конверсии: item.Конверсии,
+        // Для абсолютных значений оригинальные значения совпадают с основными
+        Показы_original: item.Показы,
+        Клики_original: item.Клики,
+        CTR_original: item.CTR,
+        Расходы_original: item.Расходы,
+        Конверсии_original: item.Конверсии
+      }));
+    } else {
+      // Нормализуем данные для разных единиц измерения
+      const показыValues = rawData.map(d => d.Показы);
+      const кликиValues = rawData.map(d => d.Клики);
+      const ctrValues = rawData.map(d => d.CTR);
+      const расходыValues = rawData.map(d => d.Расходы);
+      const конверсииValues = rawData.map(d => d.Конверсии);
+
+      const показыMax = Math.max(...показыValues);
+      const показыMin = Math.min(...показыValues);
+      const кликиMax = Math.max(...кликиValues);
+      const кликиMin = Math.min(...кликиValues);
+      const ctrMax = Math.max(...ctrValues);
+      const ctrMin = Math.min(...ctrValues);
+      const расходыMax = Math.max(...расходыValues);
+      const расходыMin = Math.min(...расходыValues);
+      const конверсииMax = Math.max(...конверсииValues);
+      const конверсииMin = Math.min(...конверсииValues);
+
+      return rawData.map(item => ({
+        Месяц: item.Месяц,
+        Показы: normalizeData(item.Показы, показыMax, показыMin),
+        Клики: normalizeData(item.Клики, кликиMax, кликиMin),
+        CTR: normalizeData(item.CTR, ctrMax, ctrMin),
+        Расходы: normalizeData(item.Расходы, расходыMax, расходыMin),
+        Конверсии: normalizeData(item.Конверсии, конверсииMax, конверсииMin),
+        // Сохраняем оригинальные значения для тултипа
+        Показы_original: item.Показы,
+        Клики_original: item.Клики,
+        CTR_original: item.CTR,
+        Расходы_original: item.Расходы,
+        Конверсии_original: item.Конверсии
+      }));
+    }
   };
 
   const fetchData = async () => {
@@ -754,7 +829,16 @@ export default function Home() {
                     {/* Пояснение к графику */}
                     <div className="text-center mb-6">
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Данные нормализованы для лучшей видимости всех серий (0-100%)
+                        {(() => {
+                          const selectedSeries = Object.entries(visibleData)
+                            .filter(([_, isVisible]) => isVisible)
+                            .map(([series, _]) => series);
+                          const useAbsoluteValues = hasSameUnits(selectedSeries);
+                          
+                          return useAbsoluteValues 
+                            ? "Отображение абсолютных значений (одинаковые единицы измерения)"
+                            : "Данные нормализованы для лучшей видимости всех серий (0-100%)";
+                        })()}
                       </p>
                     </div>
 
@@ -771,8 +855,26 @@ export default function Home() {
                           <YAxis 
                             className="text-xs"
                             tick={{ fontSize: 12 }}
-                            domain={[0, 100]}
-                            tickFormatter={(value) => `${value}%`}
+                            domain={(() => {
+                              const selectedSeries = Object.entries(visibleData)
+                                .filter(([_, isVisible]) => isVisible)
+                                .map(([series, _]) => series);
+                              const useAbsoluteValues = hasSameUnits(selectedSeries);
+                              return useAbsoluteValues ? ['dataMin', 'dataMax'] : [0, 100];
+                            })()}
+                            tickFormatter={(value) => {
+                              const selectedSeries = Object.entries(visibleData)
+                                .filter(([_, isVisible]) => isVisible)
+                                .map(([series, _]) => series);
+                              const useAbsoluteValues = hasSameUnits(selectedSeries);
+                              
+                              if (useAbsoluteValues) {
+                                if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                                if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+                                return value.toLocaleString();
+                              }
+                              return `${value}%`;
+                            }}
                           />
                           <Tooltip 
                             formatter={(value: any, name: string, props: any) => {
@@ -1081,7 +1183,16 @@ export default function Home() {
                     {/* Пояснение к графику */}
                     <div className="text-center mb-6">
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Данные нормализованы для лучшей видимости всех серий (0-100%)
+                        {(() => {
+                          const selectedSeries = Object.entries(visibleDataGoogle)
+                            .filter(([_, isVisible]) => isVisible)
+                            .map(([series, _]) => series);
+                          const useAbsoluteValues = hasSameUnits(selectedSeries);
+                          
+                          return useAbsoluteValues 
+                            ? "Отображение абсолютных значений (одинаковые единицы измерения)"
+                            : "Данные нормализованы для лучшей видимости всех серий (0-100%)";
+                        })()}
                       </p>
                     </div>
 
@@ -1098,8 +1209,26 @@ export default function Home() {
                           <YAxis 
                             className="text-xs"
                             tick={{ fontSize: 12 }}
-                            domain={[0, 100]}
-                            tickFormatter={(value) => `${value}%`}
+                            domain={(() => {
+                              const selectedSeries = Object.entries(visibleDataGoogle)
+                                .filter(([_, isVisible]) => isVisible)
+                                .map(([series, _]) => series);
+                              const useAbsoluteValues = hasSameUnits(selectedSeries);
+                              return useAbsoluteValues ? ['dataMin', 'dataMax'] : [0, 100];
+                            })()}
+                            tickFormatter={(value) => {
+                              const selectedSeries = Object.entries(visibleDataGoogle)
+                                .filter(([_, isVisible]) => isVisible)
+                                .map(([series, _]) => series);
+                              const useAbsoluteValues = hasSameUnits(selectedSeries);
+                              
+                              if (useAbsoluteValues) {
+                                if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                                if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+                                return value.toLocaleString();
+                              }
+                              return `${value}%`;
+                            }}
                           />
                           <Tooltip 
                             formatter={(value: any, name: string, props: any) => {
