@@ -1,9 +1,9 @@
 'use client';
 
 import { Loader2, ArrowLeft, Sparkles } from 'lucide-react';
-import type { JSX } from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 
 export default function Generation() {
@@ -121,7 +121,7 @@ export default function Generation() {
             } else {
               throw new Error('Что-то пошло не так, попробуйте еще раз');
             }
-          } catch (jsonError) {
+          } catch {
             throw new Error('Что-то пошло не так, попробуйте еще раз');
           }
         }
@@ -233,11 +233,14 @@ export default function Generation() {
                   Сгенерированное изображение
                 </h3>
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4">
-                  <img 
+                  <Image 
                     src={generatedImage} 
                     alt="Сгенерированное изображение" 
+                    width={800}
+                    height={600}
                     className="w-full h-auto rounded-lg"
                     onError={() => setGenerationError('Ошибка при загрузке изображения')}
+                    unoptimized
                   />
                 </div>
               </div>
