@@ -663,7 +663,7 @@ export default function Home() {
               {/* Курс конвертации BYN в USD */}
               <div className="flex flex-col items-center gap-2">
                 <label htmlFor="exchangeRate" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Курс конвертации BYN в USD
+                  Курс конвертации BYN в USD (для Яндекс)
                 </label>
                 <div className="flex items-center gap-2">
                   <input
