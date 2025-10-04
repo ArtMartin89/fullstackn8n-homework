@@ -32,8 +32,8 @@ interface CampaignData {
 }
 
 export default function Home() {
-  // Курс конвертации BYN в USD (можно изменить здесь)
-  const BYN_TO_USD_RATE = 3.0
+  // Состояние для курса конвертации BYN в USD
+  const [bynToUsdRate, setBynToUsdRate] = useState(3.0);
   
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<CampaignData[]>([]);
@@ -137,7 +137,7 @@ export default function Home() {
     if (isNaN(bynNumber)) return 0;
     
     // Конвертируем по текущему курсу
-    return bynNumber / BYN_TO_USD_RATE;
+    return bynNumber / bynToUsdRate;
   };
 
   // Функция для расчета статистики по столбцам Яндекс
@@ -659,7 +659,29 @@ export default function Home() {
               </div>
             )}
             
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-4">
+              {/* Курс конвертации BYN в USD */}
+              <div className="flex flex-col items-center gap-2">
+                <label htmlFor="exchangeRate" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Курс конвертации BYN в USD
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="exchangeRate"
+                    type="number"
+                    min="0.1"
+                    max="10"
+                    step="0.1"
+                    value={bynToUsdRate}
+                    onChange={(e) => setBynToUsdRate(parseFloat(e.target.value) || 3.0)}
+                    className="w-20 px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-center"
+                  />
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    BYN = 1 USD
+                  </span>
+                </div>
+              </div>
+
               <button
                 onClick={() => {
                   fetchData();
