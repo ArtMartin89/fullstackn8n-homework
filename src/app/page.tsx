@@ -1,9 +1,8 @@
 'use client';
 
-import { Activity, BookOpen, BellOff, Asterisk, Loader2, Sparkles } from 'lucide-react';
-import type { JSX } from 'react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import Link from 'next/link';
 
 // Типы для данных из вебхука
@@ -318,8 +317,8 @@ export default function Home() {
 
     // Определяем, какие серии выбраны для отображения
     const selectedSeries = Object.entries(visibleData)
-      .filter(([_, isVisible]) => isVisible)
-      .map(([series, _]) => series);
+      .filter(([, isVisible]) => isVisible)
+      .map(([series]) => series);
 
     // Проверяем, имеют ли выбранные серии одинаковые единицы измерения
     const useAbsoluteValues = hasSameUnits(selectedSeries);
@@ -401,8 +400,8 @@ export default function Home() {
 
     // Определяем, какие серии выбраны для отображения
     const selectedSeries = Object.entries(visibleDataGoogle)
-      .filter(([_, isVisible]) => isVisible)
-      .map(([series, _]) => series);
+      .filter(([, isVisible]) => isVisible)
+      .map(([series]) => series);
 
     // Проверяем, имеют ли выбранные серии одинаковые единицы измерения
     const useAbsoluteValues = hasSameUnits(selectedSeries);
@@ -831,8 +830,8 @@ export default function Home() {
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         {(() => {
                           const selectedSeries = Object.entries(visibleData)
-                            .filter(([_, isVisible]) => isVisible)
-                            .map(([series, _]) => series);
+                            .filter(([, isVisible]) => isVisible)
+                            .map(([series]) => series);
                           const useAbsoluteValues = hasSameUnits(selectedSeries);
                           
                           return useAbsoluteValues 
@@ -857,15 +856,15 @@ export default function Home() {
                             tick={{ fontSize: 12 }}
                             domain={(() => {
                               const selectedSeries = Object.entries(visibleData)
-                                .filter(([_, isVisible]) => isVisible)
-                                .map(([series, _]) => series);
+                                .filter(([, isVisible]) => isVisible)
+                                .map(([series]) => series);
                               const useAbsoluteValues = hasSameUnits(selectedSeries);
                               return useAbsoluteValues ? ['dataMin', 'dataMax'] : [0, 100];
                             })()}
                             tickFormatter={(value) => {
                               const selectedSeries = Object.entries(visibleData)
-                                .filter(([_, isVisible]) => isVisible)
-                                .map(([series, _]) => series);
+                                .filter(([, isVisible]) => isVisible)
+                                .map(([series]) => series);
                               const useAbsoluteValues = hasSameUnits(selectedSeries);
                               
                               if (useAbsoluteValues) {
@@ -1185,8 +1184,8 @@ export default function Home() {
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         {(() => {
                           const selectedSeries = Object.entries(visibleDataGoogle)
-                            .filter(([_, isVisible]) => isVisible)
-                            .map(([series, _]) => series);
+                            .filter(([, isVisible]) => isVisible)
+                            .map(([series]) => series);
                           const useAbsoluteValues = hasSameUnits(selectedSeries);
                           
                           return useAbsoluteValues 
@@ -1211,15 +1210,15 @@ export default function Home() {
                             tick={{ fontSize: 12 }}
                             domain={(() => {
                               const selectedSeries = Object.entries(visibleDataGoogle)
-                                .filter(([_, isVisible]) => isVisible)
-                                .map(([series, _]) => series);
+                                .filter(([, isVisible]) => isVisible)
+                                .map(([series]) => series);
                               const useAbsoluteValues = hasSameUnits(selectedSeries);
                               return useAbsoluteValues ? ['dataMin', 'dataMax'] : [0, 100];
                             })()}
                             tickFormatter={(value) => {
                               const selectedSeries = Object.entries(visibleDataGoogle)
-                                .filter(([_, isVisible]) => isVisible)
-                                .map(([series, _]) => series);
+                                .filter(([, isVisible]) => isVisible)
+                                .map(([series]) => series);
                               const useAbsoluteValues = hasSameUnits(selectedSeries);
                               
                               if (useAbsoluteValues) {
